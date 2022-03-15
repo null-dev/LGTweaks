@@ -8,3 +8,4 @@ A collection of Xposed tweaks for my LG V60.
 - Lockscreen album art has been disabled
 - Quick settings tiles now vibrate when you tap them
 - Peek has been disabled for easier knock-off
+- Allow [KDE Connect](https://kdeconnect.kde.org/) to access the clipboard in the background

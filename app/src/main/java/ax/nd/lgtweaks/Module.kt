@@ -1,5 +1,6 @@
 package ax.nd.lgtweaks
 
+import ax.nd.lgtweaks.systemui.behavior.ClipboardWhitelistHook
 import ax.nd.lgtweaks.systemui.behavior.DisableDoubleHapticsHook
 import ax.nd.lgtweaks.systemui.behavior.DisableWakeScreenOnPowerHook
 import ax.nd.lgtweaks.systemui.behavior.LongPressVolumeKeyHook
@@ -30,6 +31,7 @@ class Module : IXposedHookLoadPackage {
             DisableWakeScreenOnPowerHook.setup(lpparam)
             LongPressVolumeKeyHook.setup(lpparam)
             DisableDoubleHapticsHook.setup(lpparam)
+            ClipboardWhitelistHook.setup(lpparam)
         }
     }
 }

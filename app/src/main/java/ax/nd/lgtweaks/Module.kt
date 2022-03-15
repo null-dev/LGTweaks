@@ -1,0 +1,35 @@
+package ax.nd.lgtweaks
+
+import ax.nd.lgtweaks.systemui.behavior.DisableDoubleHapticsHook
+import ax.nd.lgtweaks.systemui.behavior.DisableWakeScreenOnPowerHook
+import ax.nd.lgtweaks.systemui.behavior.LongPressVolumeKeyHook
+import ax.nd.lgtweaks.systemui.lockscreen.DisableLockscreenAlbumArtHook
+import ax.nd.lgtweaks.systemui.notifications.DisablePeekHook
+import ax.nd.lgtweaks.systemui.notifications.quicktiles.HapticQuickTilesHook
+import de.robv.android.xposed.IXposedHookLoadPackage
+import de.robv.android.xposed.callbacks.XC_LoadPackage
+
+class Module : IXposedHookLoadPackage {
+    /**
+     * This method is called when an app is loaded. It's called very early, even before
+     * [Application.onCreate] is called.
+     * Modules can set up their app-specific hooks here.
+     *
+     * @param lpparam Information about the app.
+     * @throws Throwable Everything the callback throws is caught and logged.
+     */
+    override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
+        // Hook SystemUi
+        if (lpparam.packageName == "com.android.systemui") {
+            DisableLockscreenAlbumArtHook.setup(lpparam)
+            HapticQuickTilesHook.setup(lpparam)
+            DisablePeekHook.setup(lpparam)
+            LongPressVolumeKeyHook.setupSysUi(lpparam)
+        }
+        if (lpparam.packageName == "android") {
+            DisableWakeScreenOnPowerHook.setup(lpparam)
+            LongPressVolumeKeyHook.setup(lpparam)
+            DisableDoubleHapticsHook.setup(lpparam)
+        }
+    }
+}

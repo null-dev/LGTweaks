@@ -29,7 +29,7 @@ object DisableDoubleHapticsHook : Hook {
                         // Only disable effect if we are not going to fallback
                         if(prebaked != null && prebakedClazz.isInstance(prebaked) && shouldFallback.invoke(prebaked) == false) {
                             // Pretend that the effect does not exist
-                            param.result = 0
+                            param.result = 0L
                         }
                     }
                 }

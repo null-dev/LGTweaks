@@ -1,6 +1,5 @@
 package ax.nd.lgtweaks.systemui.notifications.quicktiles
 
-import android.graphics.Bitmap
 import android.view.HapticFeedbackConstants
 import android.view.View
 import ax.nd.lgtweaks.Hook

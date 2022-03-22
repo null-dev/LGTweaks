@@ -9,3 +9,5 @@ A collection of Xposed tweaks for my LG V60.
 - Quick settings tiles now vibrate when you tap them
 - Peek has been disabled for easier knock-off
 - Allow [KDE Connect](https://kdeconnect.kde.org/) to access the clipboard in the background
+- Enable rotating the phone upside down
+- Long-press the Google Assistant key to toggle the flashlight

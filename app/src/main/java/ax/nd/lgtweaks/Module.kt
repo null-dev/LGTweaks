@@ -1,9 +1,6 @@
 package ax.nd.lgtweaks
 
-import ax.nd.lgtweaks.systemui.behavior.ClipboardWhitelistHook
-import ax.nd.lgtweaks.systemui.behavior.DisableDoubleHapticsHook
-import ax.nd.lgtweaks.systemui.behavior.DisableWakeScreenOnPowerHook
-import ax.nd.lgtweaks.systemui.behavior.LongPressVolumeKeyHook
+import ax.nd.lgtweaks.systemui.behavior.*
 import ax.nd.lgtweaks.systemui.lockscreen.DisableLockscreenAlbumArtHook
 import ax.nd.lgtweaks.systemui.notifications.DisablePeekHook
 import ax.nd.lgtweaks.systemui.notifications.quicktiles.HapticQuickTilesHook
@@ -32,6 +29,8 @@ class Module : IXposedHookLoadPackage {
             LongPressVolumeKeyHook.setup(lpparam)
             DisableDoubleHapticsHook.setup(lpparam)
             ClipboardWhitelistHook.setup(lpparam)
+            EnableAllRotationsHook.setup(lpparam)
+            AIKeyHandlerHook.setup(lpparam)
         }
     }
 }

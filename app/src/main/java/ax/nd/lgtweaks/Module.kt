@@ -31,6 +31,8 @@ class Module : IXposedHookLoadPackage {
             ClipboardWhitelistHook.setup(lpparam)
             EnableAllRotationsHook.setup(lpparam)
             AIKeyHandlerHook.setup(lpparam)
+            DisableFlagSecureHook.setup(lpparam)
+            HideRecentsHook.setup(lpparam)
         }
     }
 }

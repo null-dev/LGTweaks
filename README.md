@@ -11,3 +11,5 @@ A collection of Xposed tweaks for my LG V60.
 - Allow [KDE Connect](https://kdeconnect.kde.org/) to access the clipboard in the background
 - Enable rotating the phone upside down
 - Long-press the Google Assistant key to toggle the flashlight
+- `FLAG_SECURE` is disabled globally. Screenshot any app you want!
+- The contents of specific apps have been hidden from recents. This does not mean they have `FLAG_SECURE` though, this only affects recents. You can still screenshot them.

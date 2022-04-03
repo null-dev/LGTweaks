@@ -6,6 +6,7 @@ import android.util.Log
 import ax.nd.lgtweaks.Hook
 import ax.nd.xposedutil.DEBUG_LOG_TAG
 import ax.nd.xposedutil.asAccessible
+import ax.nd.xposedutil.withContext
 import de.robv.android.xposed.XC_MethodReplacement
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
@@ -21,6 +22,21 @@ object AIKeyHandlerHook : Hook {
     override fun setup(lpparam: XC_LoadPackage.LoadPackageParam) {
         val clazz = lpparam.classLoader.loadClass("com.android.server.policy.HotKeyController")
         val contextField = clazz.getDeclaredField("mContext").asAccessible()
+        // Ensure hotkey still works when apps go fullscreen
+        lpparam.withContext(
+            clazz,
+            "isHotkeyLaunchEnabled",
+            Boolean::class.javaPrimitiveType!!
+        ) { isHotkeyLaunchEnabledContext ->
+            isHotkeyLaunchEnabledContext.withContext(
+                "com.android.server.policy.PhoneWindowManager\$10",
+                "isFullScreen"
+            ) { isFullScreen ->
+                isFullScreen.enter { param ->
+                    param.result = false
+                }
+            }
+        }
         XposedHelpers.findAndHookMethod(
             clazz,
             "executeAIHotKeyPress",

@@ -11,9 +11,9 @@ import android.util.Log
 import android.view.KeyEvent
 import android.view.KeyEvent.*
 import android.view.View
-import androidx.core.content.getSystemService
 import ax.nd.lgtweaks.Hook
 import ax.nd.xposedutil.asAccessible
+import ax.nd.xposedutil.getSystemService
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage

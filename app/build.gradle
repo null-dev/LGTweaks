@@ -34,7 +34,7 @@ android {
 dependencies {
     compileOnly "de.robv.android.xposed:api:82"
     compileOnly project(":framework_stub")
-    implementation 'ax.nd.xposedutil:xposedutil:1.0' // https://github.com/null-dev/xposedutil
+    implementation 'ax.nd.xposedutil:xposedutil:1.1' // https://github.com/null-dev/xposedutil
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'

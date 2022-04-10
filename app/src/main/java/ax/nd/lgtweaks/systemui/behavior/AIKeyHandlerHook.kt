@@ -78,7 +78,7 @@ object AIKeyHandlerHook : Hook {
     }
 
     private fun toggleFlashlight(context: Context) {
-        Log.d(DEBUG_LOG_TAG, "Send intent!")
+        Log.d(TAG, "Send intent!")
         context.sendBroadcast(Intent(INTENT_TOGGLE_FLASHLIGHT))
     }
 }

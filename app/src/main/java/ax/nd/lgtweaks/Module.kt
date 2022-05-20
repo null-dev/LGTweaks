@@ -34,5 +34,8 @@ class Module : IXposedHookLoadPackage {
             DisableFlagSecureHook.setup(lpparam)
             HideRecentsHook.setup(lpparam)
         }
+        if (lpparam.packageName == "com.lge.launcher3") {
+            RecentsLagFixHook.setup(lpparam)
+        }
     }
 }

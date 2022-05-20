@@ -3,5 +3,6 @@
     <string-array name="xposed_scope" >
         <item>android</item>
         <item>com.android.systemui</item>
+        <item>com.lge.launcher3</item>
     </string-array>
 </resources>

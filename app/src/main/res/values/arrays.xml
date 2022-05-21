@@ -4,5 +4,6 @@
         <item>android</item>
         <item>com.android.systemui</item>
         <item>com.lge.launcher3</item>
+        <item>com.google.android.gms</item>
     </string-array>
 </resources>

@@ -33,6 +33,8 @@ class Module : IXposedHookLoadPackage {
             AIKeyHandlerHook.setup(lpparam)
             DisableFlagSecureHook.setup(lpparam)
             HideRecentsHook.setup(lpparam)
+        } else {
+            DisableSystemUpdatesHook.setup(lpparam)
         }
         if (lpparam.packageName == "com.lge.launcher3") {
             RecentsLagFixHook.setup(lpparam)

@@ -33,11 +33,15 @@ class Module : IXposedHookLoadPackage {
             AIKeyHandlerHook.setup(lpparam)
             DisableFlagSecureHook.setup(lpparam)
             HideRecentsHook.setup(lpparam)
-        } else {
-            DisableSystemUpdatesHook.setup(lpparam)
+        }
+        if(lpparam.packageName == "com.android.settings") {
+            EnableAllDualAppsHook.setup(lpparam)
         }
         if (lpparam.packageName == "com.lge.launcher3") {
             RecentsLagFixHook.setup(lpparam)
         }
+        // Hook all apps with the broken updater
+        // Currently only known user is: com.google.android.gms
+        DisableSystemUpdatesHook.setup(lpparam)
     }
 }

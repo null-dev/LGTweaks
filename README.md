@@ -17,3 +17,4 @@ You should probably not use this directly but you can cherry-pick the tweaks you
 - The contents of specific apps have been hidden from recents. This does not mean they have `FLAG_SECURE` though, this only affects recents. You can still screenshot them.
 - Fix lag when opening recents sometimes
 - Disables system updates
+- Allow installing any app in Dual App

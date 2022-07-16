@@ -40,5 +40,13 @@ object EnableAllDualAppsHook : Hook {
                 }
             }
         )
+
+        // Do not notify that apps can be dual-apped because all apps can be dual-apped now
+        XposedHelpers.findAndHookMethod(
+            "com.android.settings.common.DualAppNotificationHelper",
+            lpparam.classLoader,
+            "createNotification",
+            XC_MethodReplacement.DO_NOTHING
+        )
     }
 }

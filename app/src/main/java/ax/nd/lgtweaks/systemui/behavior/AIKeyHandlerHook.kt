@@ -10,11 +10,15 @@ import ax.nd.xposedutil.withContext
 import de.robv.android.xposed.XC_MethodReplacement
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.thread
 
 object AIKeyHandlerHook : Hook {
     private val TAG = AIKeyHandlerHook::class.simpleName
 
     private const val INTENT_TOGGLE_FLASHLIGHT = "ax.nd.lgtweaks.toggle-flashlight"
+    private const val INTENT_DOUBLE_CLICK = "ax.nd.lgtweaks.double-click"
+    private const val INTENT_TRIPLE_CLICK = "ax.nd.lgtweaks.triple-click"
     private const val KEY_SINGLE_CLICK = 1
     private const val KEY_LONG_PRESS_DOWN = 2
     private const val KEY_LONG_PRESS_UP = 4
@@ -37,6 +41,7 @@ object AIKeyHandlerHook : Hook {
                 }
             }
         }
+        val clickManager = ClickManager()
         XposedHelpers.findAndHookMethod(
             clazz,
             "executeAIHotKeyPress",
@@ -66,10 +71,17 @@ object AIKeyHandlerHook : Hook {
                         val key = param.args[1] as Int
 
                         if(key == KEY_LONG_PRESS_DOWN) {
+                            clickManager.reset()
                             toggleFlashlight(context)
+                        } else if(key == KEY_SINGLE_CLICK) {
+                            clickManager.addClick(listOf(
+                                { toggleSingleClick(context) },
+                                { toggleDoubleClick(context) },
+                                { toggleTripleClick(context) }
+                            ))
                         }
                     } catch (e: Exception) {
-                        Log.e(TAG, "Failed to handle AI key press!")
+                        Log.e(TAG, "Failed to handle AI key press!", e)
                     }
                     return null
                 }
@@ -78,7 +90,84 @@ object AIKeyHandlerHook : Hook {
     }
 
     private fun toggleFlashlight(context: Context) {
-        Log.d(TAG, "Send intent!")
+        Log.d(TAG, "Long click!")
         context.sendBroadcast(Intent(INTENT_TOGGLE_FLASHLIGHT))
+    }
+
+    private fun toggleSingleClick(context: Context) {
+        // Do nothing
+    }
+
+    private fun toggleDoubleClick(context: Context) {
+        Log.d(TAG, "Double click!")
+        context.sendBroadcast(Intent(INTENT_DOUBLE_CLICK))
+    }
+
+    private fun toggleTripleClick(context: Context) {
+        Log.d(TAG, "Triple click!")
+        context.sendBroadcast(Intent(INTENT_TRIPLE_CLICK))
+    }
+}
+
+private const val TIME_BETWEEN_CLICKS = 400
+
+class ClickManager {
+    private val clickStack = mutableListOf<Long>()
+    private var topClickStackCallbacks = listOf<() -> Unit>()
+    private var runningThread: Thread? = null
+
+    fun addClick(cbs: List<() -> Unit>) {
+        val time = System.currentTimeMillis()
+        var newThread: Thread? = null
+        synchronized(this) {
+            clickStack.add(time)
+            topClickStackCallbacks = cbs
+            if(runningThread == null) {
+                newThread = thread(start = false) {
+                    clickThread()
+                }
+                runningThread = newThread
+            }
+        }
+        newThread?.start()
+    }
+
+    private fun clickThread() {
+        // Sleep until TIME_BETWEEN_CLICKS after top click
+        var lastClickIndex: Int
+        while(true) {
+            val topClick = synchronized(this) {
+                lastClickIndex = clickStack.lastIndex
+                if(lastClickIndex != -1) {
+                    clickStack[lastClickIndex]
+                } else null
+            }
+            if (topClick != null) {
+                val requiredSleepTime = (topClick + TIME_BETWEEN_CLICKS) - System.currentTimeMillis()
+                if(requiredSleepTime > 0) {
+                    Thread.sleep(requiredSleepTime)
+                } else {
+                    break
+                }
+            }
+        }
+        val callback: (() -> Unit)?
+        synchronized(this) {
+            callback = if(lastClickIndex != -1) {
+                topClickStackCallbacks.getOrNull(lastClickIndex)
+            } else null
+
+            clickStack.clear()
+            topClickStackCallbacks = emptyList()
+            runningThread = null
+        }
+        callback?.invoke()
+    }
+
+    fun reset() {
+        synchronized(this) {
+            clickStack.clear()
+            topClickStackCallbacks = emptyList()
+        }
     }
 }

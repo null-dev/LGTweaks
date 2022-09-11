@@ -13,7 +13,8 @@ You should probably not use this directly but you can cherry-pick the tweaks you
 - Allow [KDE Connect](https://kdeconnect.kde.org/) to access the clipboard in the background
 - Enable rotating the phone upside down
 - Long-press the Google Assistant key to toggle the flashlight
-- Double-click the Google Assistant key to perform any action you want (controllable via Tasker, I have mine set on play-pause)
+- Single-click the Google Assistant key to perform any action you want (controllable via Tasker, I have mine set on play-pause)
+- Double-click the Google Assistant key to perform any action you want (controllable via Tasker)
 - Triple-click the Google Assistant key to perform any action you want (controllable via Tasker)
 - `FLAG_SECURE` is disabled globally. Screenshot any app you want!
 - The contents of specific apps have been hidden from recents. This does not mean they have `FLAG_SECURE` though, this only affects recents. You can still screenshot them.

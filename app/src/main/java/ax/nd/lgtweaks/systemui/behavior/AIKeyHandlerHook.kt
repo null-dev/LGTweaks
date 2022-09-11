@@ -17,6 +17,7 @@ object AIKeyHandlerHook : Hook {
     private val TAG = AIKeyHandlerHook::class.simpleName
 
     private const val INTENT_TOGGLE_FLASHLIGHT = "ax.nd.lgtweaks.toggle-flashlight"
+    private const val INTENT_SINGLE_CLICK = "ax.nd.lgtweaks.single-click"
     private const val INTENT_DOUBLE_CLICK = "ax.nd.lgtweaks.double-click"
     private const val INTENT_TRIPLE_CLICK = "ax.nd.lgtweaks.triple-click"
     private const val KEY_SINGLE_CLICK = 1
@@ -167,7 +168,8 @@ object AIKeyHandlerHook : Hook {
     }
 
     private fun toggleSingleClick(context: Context) {
-        // Do nothing
+        Log.d(TAG, "Single click!")
+        context.sendBroadcast(Intent(INTENT_SINGLE_CLICK))
     }
 
     private fun toggleDoubleClick(context: Context) {

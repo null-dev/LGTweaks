@@ -3,14 +3,14 @@ package ax.nd.lgtweaks.systemui.behavior
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import android.view.KeyEvent
 import ax.nd.lgtweaks.Hook
-import ax.nd.xposedutil.DEBUG_LOG_TAG
 import ax.nd.xposedutil.asAccessible
 import ax.nd.xposedutil.withContext
+import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XC_MethodReplacement
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
-import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.thread
 
 object AIKeyHandlerHook : Hook {
@@ -25,6 +25,7 @@ object AIKeyHandlerHook : Hook {
 
     override fun setup(lpparam: XC_LoadPackage.LoadPackageParam) {
         val clazz = lpparam.classLoader.loadClass("com.android.server.policy.HotKeyController")
+        val lgPWMClazz = lpparam.classLoader.loadClass("com.android.server.policy.LGPhoneWindowManager")
         val contextField = clazz.getDeclaredField("mContext").asAccessible()
         // Ensure hotkey still works when apps go fullscreen
         lpparam.withContext(
@@ -32,6 +33,7 @@ object AIKeyHandlerHook : Hook {
             "isHotkeyLaunchEnabled",
             Boolean::class.javaPrimitiveType!!
         ) { isHotkeyLaunchEnabledContext ->
+            // Hook the implementer of PwmFuncsDelegate
             isHotkeyLaunchEnabledContext.withContext(
                 "com.android.server.policy.PhoneWindowManager\$10",
                 "isFullScreen"
@@ -41,6 +43,76 @@ object AIKeyHandlerHook : Hook {
                 }
             }
         }
+        // Fix single-presses while display is off by always saying that the display is on
+        // in the hotkey code
+        /*lpparam.withContext(
+            lgPWMClazz,
+            "interceptHotKey",
+            KeyEvent::class.java,
+            Boolean::class.javaPrimitiveType!!,
+            Boolean::class.javaPrimitiveType!!
+        ) { interceptHotKeyContext ->
+            interceptHotKeyContext.enter {
+                Log.d(TAG, "[interceptHotKey] stack trace:", java.lang.Exception())
+            }
+            // Hook the implementer of PwmFuncsDelegate
+            interceptHotKeyContext.withContext(
+                "com.android.server.policy.PhoneWindowManager\$10",
+                "keyguardOnProxy",
+            ) { keyguardOnProxyContext ->
+                keyguardOnProxyContext.enter { param ->
+                    interceptHotKeyContext.enter {
+                        Log.d(TAG, "[proxy] stack trace:", java.lang.Exception())
+                    }
+                    param.result = false
+                }
+            }
+        }*/
+        val mHotkeySLongTriggerField = lgPWMClazz.getDeclaredField("mHotkeySLongTrigger").asAccessible()
+        XposedHelpers.findAndHookMethod(
+            lgPWMClazz,
+            "hotKeyRelease",
+            Boolean::class.javaPrimitiveType!!,
+            Int::class.javaPrimitiveType!!,
+            Long::class.javaPrimitiveType!!,
+            object : XC_MethodHook() {
+                override fun beforeHookedMethod(param: MethodHookParam) {
+                    // Without this, hotKeyRelease will not always call hotKeyActions when the display is off
+                    mHotkeySLongTriggerField.setBoolean(param.thisObject, true)
+                }
+            }
+        )
+        val mHotKeyControllerField = lgPWMClazz.getDeclaredField("mHotKeyController").asAccessible()
+        val interceptHotKeyMethod = lgPWMClazz.getDeclaredMethod(
+            "interceptHotKey",
+            KeyEvent::class.java,
+            Boolean::class.javaPrimitiveType!!,
+            Boolean::class.javaPrimitiveType!!
+        ).asAccessible()
+        // Move hotkey handling to "Pre" because it doesn't always get invoked when display is off in "Post"
+        XposedHelpers.findAndHookMethod(
+            lgPWMClazz,
+            "interceptKeyBeforeQueueingPre",
+            KeyEvent::class.java,
+            Int::class.javaPrimitiveType!!,
+            object : XC_MethodHook() {
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    val keyEvent = param.args[0] as KeyEvent
+                    val var2 = param.args[1] as Int
+
+                    if(keyEvent.keyCode == 165) {
+                        val var4 = keyEvent.action == 0
+                        val var5 = 536870912 and var2 != 0
+
+                        val mHotKeyController = mHotKeyControllerField.get(param.thisObject)
+                        if (mHotKeyController != null) {
+                            interceptHotKeyMethod.invoke(param.thisObject, keyEvent, var4, var5)
+                            param.result = true
+                        }
+                    }
+                }
+            }
+        )
         val clickManager = ClickManager()
         XposedHelpers.findAndHookMethod(
             clazz,

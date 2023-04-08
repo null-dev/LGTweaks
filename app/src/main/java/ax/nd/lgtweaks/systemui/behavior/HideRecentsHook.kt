@@ -12,12 +12,26 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage
  * Do not display window content for some apps in recents
  */
 object HideRecentsHook : Hook {
-    private val RECENTS_BLACKLIST = hashSetOf(
+    private val BLACKLISTED_PACKAGE_NAMES = hashSetOf(
         "jp.pxv.android", // Pixiv
         "eu.kanade.tachiyomi.sy", // TachiyomiSy
         "onlymash.flexbooru.play", // Flexbooru
-        "com.andrewshu.android.reddit" // reddit is fun
+        "com.andrewshu.android.reddit", // reddit is fun
+        "com.klinker.android.twitter_l", // Talon
+
+        "com.project.nutaku", // Nutaku
+
+        "org.mozilla.fennec_fdroid.nn9", // Fennec NN9
     )
+
+    // Uses matchEntire()
+    //language=regexp
+    private val BLACKLISTED_PACKAGE_NAME_REGEXES = hashSetOf(
+        // Anything made by Pinkcore (e.g. TenkafuMA!, Daraku Gear)
+        """com\.pinkcore\..+""",
+        // Anything made by CrispyTofuGames (e.g. Tavern of Sins)
+        """com\.crispytofu\..+"""
+    ).map { Regex(it) }
 
     override fun setup(lpparam: XC_LoadPackage.LoadPackageParam) {
         val clazz = lpparam.classLoader.loadClass("com.android.server.wm.TaskSnapshotController")
@@ -50,13 +64,19 @@ object HideRecentsHook : Hook {
                     val sourceComponent = origActivity ?: realActivity
                     val appPackageName = sourceComponent?.packageName
 
-                    if(topActivityPackageName in RECENTS_BLACKLIST
-                        || appPackageName in RECENTS_BLACKLIST) {
+                    if(isPackageNameBlacklisted(topActivityPackageName) || isPackageNameBlacklisted(appPackageName)) {
                         param.result = 1 // SNAPSHOT_MODE_APP_THEME
                     }
                     // Otherwise, use super judgement
                 }
             }
         )
+    }
+
+    private fun isPackageNameBlacklisted(packageName: String?): Boolean {
+        if(packageName == null) return false
+        return packageName in BLACKLISTED_PACKAGE_NAMES || BLACKLISTED_PACKAGE_NAME_REGEXES.any {
+            it.matchEntire(packageName) != null
+        }
     }
 }
